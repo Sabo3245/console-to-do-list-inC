@@ -134,11 +134,40 @@ void viewTasks(Task* tasks , int* taskCount) {
 }
 
 
+void saveTasks(Task* tasks, int taskCount) {
+	FILE* file = fopen("todo.txt", "w");
+	if (file == NULL) {
+		printf("Error saving tasks!\n");
+		return;
+	}
+	for (int i = 0; i < taskCount; i++) {
+		fprintf(file, "%d|%s", tasks[i].isDone, tasks[i].description);
+	}
+	fclose(file);
+}
+
+void loadTasks(Task* tasks, int* taskCount) {
+	FILE* file = fopen("todo.txt", "r");
+	if (file == NULL) {
+		return; // no saved tasks yet
+	}
+	while (!feof(file)) {
+		if (fscanf(file, "%d|", &tasks[*taskCount].isDone) == 1) {
+			fgets(tasks[*taskCount].description, 100, file);
+			(*taskCount)++;
+		}
+	}
+	fclose(file);
+}
+
+
+
 int main() {
 	
 	Task tasks[100];
 
 	int taskCount = 0;
+	loadTasks(tasks, &taskCount);
 
 	int choice;
 
@@ -173,7 +202,9 @@ int main() {
 			break;
 
 		case 3:
-			printf("Saved");
+			saveTasks(tasks, taskCount);
+			printf("Tasks saved to todo.txt\n");
+
 			break;
 		default: printf("invalid choice");
 		}
